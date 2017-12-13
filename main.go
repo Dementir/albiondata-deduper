@@ -10,7 +10,7 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/nats-io/go-nats"
-	"github.com/regner/albiondata-client/lib"
+	"github.com/broderickhyman/albiondata-client/lib"
 )
 
 type config struct {
