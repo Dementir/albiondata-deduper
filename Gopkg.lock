@@ -26,7 +26,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/regner/albiondata-client"
+  name = "github.com/broderickhyman/albiondata-client"
   packages = ["lib"]
   revision = "f14dcac236761b8ab992d3c6ec8585be382afe34"
   version = "0.0.9"
