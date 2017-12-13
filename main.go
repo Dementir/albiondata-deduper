@@ -15,7 +15,7 @@ import (
 
 type config struct {
 	CacheTime int    `default:"500"`
-	NatsURL   string `default:"nats://localhost:4222"`
+	NatsURL   string `default:"nats://public:thenewalbiondata@localhost:4222"`
 	RedisAddr string `default:"localhost:6379"`
 	RedisPass string `default:""`
 }
