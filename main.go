@@ -32,7 +32,7 @@ func init() {
 	flag.StringVar(
 		&c.NatsURL,
 		"i",
-		"nats://localhost:4222",
+		"nats://public:thenewalbiondata@localhost:4222",
 		"Nats URL.",
 	)
 
