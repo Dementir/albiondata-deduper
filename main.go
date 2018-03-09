@@ -11,13 +11,15 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/nats-io/go-nats"
 	"github.com/broderickhyman/albiondata-client/lib"
+	"flag"
 )
 
 type config struct {
 	CacheTime int    `default:"500"`
-	NatsURL   string `default:"nats://public:thenewalbiondata@localhost:4222"`
-	RedisAddr string `default:"localhost:6379"`
-	RedisPass string `default:""`
+	NatsURL   string
+	RedisAddr string
+	RedisPass string
+	Debug bool
 }
 
 var (
@@ -26,13 +28,46 @@ var (
 	nc *nats.Conn
 )
 
+func init() {
+	flag.StringVar(
+		&c.NatsURL,
+		"i",
+		"nats://localhost:4222",
+		"Nats URL.",
+	)
+
+	flag.StringVar(
+		&c.RedisAddr,
+		"r",
+		"localhost:6379",
+		"Redis URL.",
+	)
+
+	flag.StringVar(
+		&c.RedisPass,
+		"p",
+		"",
+		"Redis Password.",
+	)
+
+	flag.BoolVar(
+		&c.Debug,
+		"debug",
+		false,
+		"Enable debug logging.",
+	)
+}
+
+
 func main() {
+	log.Println("Deduper starting")
+	flag.Parse()
 	err := envconfig.Process("deduper", &c)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	// Setup NATS
+	log.Printf("Connecting to Nats: %s", c.NatsURL)
 	nc, err = nats.Connect(c.NatsURL)
 	if err != nil {
 		log.Fatalf("Unable to connect to nats server: %v", err)
@@ -40,7 +75,7 @@ func main() {
 
 	defer nc.Close()
 
-	// Setup Redis
+	log.Printf("Connecting to Redis: %s", c.RedisAddr)
 	rc = redis.NewClient(&redis.Options{
 		Addr:     c.RedisAddr,
 		Password: c.RedisPass,
@@ -74,6 +109,7 @@ func main() {
 	}
 	defer mapSub.Unsubscribe()
 
+	log.Println("Listening")
 	for {
 		select {
 		case msg := <-marketCh:
@@ -135,7 +171,7 @@ func isDupedMessage(key string) bool {
 		// It didn't exist so not a duped message
 		return false
 	} else if err != nil {
-		fmt.Printf("Error while getting from Redis: %v", err)
+		fmt.Println("Error while getting from Redis: %v", err)
 
 		// There was a problem with Redis and since we cannot verify
 		// if the message is a dupe lets just say it isn't. Better
@@ -153,6 +189,6 @@ func set(key string) {
 
 	_, err := rc.Set(key, 1, cache_time).Result()
 	if err != nil {
-		fmt.Printf("Something wrong seting redis key: %v", err)
+		fmt.Println("Error while setting redis key: %v", err)
 	}
 }
