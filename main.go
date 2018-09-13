@@ -153,6 +153,8 @@ func handleMarketOrder(msg *nats.Msg) {
 	}
 
 	for _, order := range morders.Orders {
+		// Hack since albion seems to be multiplying every price by 10000?
+		order.Price = order.Price / 10000
 		jb, _ := json.Marshal(order)
 		hash := md5.Sum(jb)
 		key := fmt.Sprintf("%v-%v", msg.Subject, hash)
